@@ -1,112 +1,45 @@
-// Reusable function to initialize a slider
-function createSlider(trackId, slideSelector, duration = 8000) {
-  const track = document.getElementById(trackId);
-  if (!track) return; // Guard clause in case element isn't on the page
+(function(){
+  var c=document.getElementById('fx'),x=c.getContext('2d'),W,H,P=[],mx=-999,my=-999,dpr=Math.min(devicePixelRatio||1,2),still=matchMedia('(prefers-reduced-motion:reduce)').matches;
+  function size(){W=c.width=innerWidth*dpr;H=c.height=innerHeight*dpr;P=[];var n=Math.min(90,Math.floor(innerWidth/14));for(var i=0;i<n;i++)P.push({x:Math.random()*W,y:Math.random()*H,r:(Math.random()*1.3+.5)*dpr,vx:(Math.random()-.5)*.28*dpr,vy:(Math.random()-.5)*.28*dpr,g:Math.random()>.6})}
+  size();addEventListener('resize',size);
+  addEventListener('pointermove',function(e){mx=e.clientX*dpr;my=e.clientY*dpr});
+  function f(){x.clearRect(0,0,W,H);var L=130*dpr;
+    for(var i=0;i<P.length;i++){var p=P[i];if(!still){p.x+=p.vx;p.y+=p.vy}
+      if(p.x<0)p.x=W;if(p.x>W)p.x=0;if(p.y<0)p.y=H;if(p.y>H)p.y=0;
+      x.fillStyle=p.g?'rgba(255,241,204,.85)':'rgba(77,242,224,.7)';x.beginPath();x.arc(p.x,p.y,p.r,0,6.3);x.fill();
+      for(var j=i+1;j<P.length;j++){var q=P[j],d=Math.hypot(p.x-q.x,p.y-q.y);if(d<L){x.strokeStyle='rgba(122,92,255,'+(1-d/L)*.35+')';x.lineWidth=dpr*.5;x.beginPath();x.moveTo(p.x,p.y);x.lineTo(q.x,q.y);x.stroke()}}
+      var d2=Math.hypot(p.x-mx,p.y-my);if(d2<170*dpr){x.strokeStyle='rgba(226,184,97,'+(1-d2/(170*dpr))*.6+')';x.beginPath();x.moveTo(p.x,p.y);x.lineTo(mx,my);x.stroke()}}
+    if(!still)requestAnimationFrame(f)}
+  f();
+})();
+var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('on');io.unobserve(e.target)}})},{threshold:.12});
+document.querySelectorAll('.rv').forEach(function(el,i){el.style.transitionDelay=(i%3)*90+'ms';io.observe(el)});
+document.querySelectorAll('.card').forEach(function(k){k.addEventListener('pointermove',function(e){var r=k.getBoundingClientRect();k.style.setProperty('--mx',(e.clientX-r.left)+'px');k.style.setProperty('--my',(e.clientY-r.top)+'px')})});
+var dlg=document.getElementById('dlg'),sel=document.getElementById('sel'),mb=document.getElementById('mb');
+var orig=mb.innerHTML;
+document.querySelectorAll('.order').forEach(function(b){b.addEventListener('click',function(){mb.innerHTML=orig;sel=document.getElementById('sel');sel.value=b.dataset.pkg;bind();dlg.showModal()})});
+dlg.addEventListener('click',function(e){if(e.target===dlg)dlg.close()});
+function bind(){document.getElementById('f').addEventListener('submit',function(e){e.preventDefault();var d=new FormData(this);
+  var body='Name: '+d.get('n')+'\nEmail: '+d.get('e')+'\nPackage: '+d.get('p')+'\n\n'+d.get('d');
+  location.href='mailto:hello@novaforge.example?subject='+encodeURIComponent('New order: '+d.get('p'))+'&body='+encodeURIComponent(body);
+  mb.innerHTML='<div class="ok">Thank you! Your order is on its way. We’ll reply within 24 hours.</div>'})}
+bind();
 
-  // Only find the slides inside THIS specific track container
-  const slides = track.querySelectorAll(slideSelector);
-  const totalSlides = slides.length;
-  let currentIndex = 0;
+const track = document.querySelector('.slider-track');
+const slides = document.querySelectorAll('.img-container');
+let currentIndex = 0;
 
-  const nextSlide = () => {
-    let nextIndex = currentIndex + 1;
-
-    if (nextIndex < totalSlides) {
-      currentIndex = nextIndex;
-    } else {
+function nextSlide() {
+   currentIndex++;
+   
+   // Loop back to the first slide if we reach the end
+   if (currentIndex >= slides.length) {
       currentIndex = 0;
-    }
-    
-    // Moves the inner track horizontally
-    track.style.transform = `translateX(-${currentIndex * 100}%)`;
-  };
-
-  // Start the timer loop
-  setInterval(nextSlide, duration);
+   }
+   
+   // Shift the track to show the current slide
+   track.style.transform = `translateX(-${currentIndex * 100}%)`;
 }
 
-// Initialize both sliders when the window loads
-window.addEventListener('DOMContentLoaded', () => {
-  // 1. Image Slider (8 seconds)
-  createSlider('imageSliderTrack', '.slide', 8000);
-  
-  // 2. Text Review Slider (8 seconds)
-  createSlider('textSliderTrack', '.slide', 8000);
-});
-
-
-// Select the HTML elements
-const menuBtn = document.getElementById('menuBtn');
-const closeBtn = document.getElementById('closeBtn');
-const mySidenav = document.getElementById('mySidenav');
-
-// Open the sidebar when the menu button is clicked
-menuBtn.addEventListener('click', () => {
-  mySidenav.classList.add('open');
-});
-
-// Close the sidebar when the close button is clicked
-closeBtn.addEventListener('click', () => {
-  mySidenav.classList.remove('open');
-});
-
-// Optional: Close the sidebar when clicking anywhere outside of it
-window.addEventListener('click', (event) => {
-  if (event.target !== mySidenav && event.target !== menuBtn && !mySidenav.contains(event.target)) {
-    mySidenav.classList.remove('open');
-  }
-});
-
-const waWidgetBtn = document.getElementById('waWidgetBtn');
-const waChatBox = document.getElementById('waChatBox');
-const waCloseBtn = document.getElementById('waCloseBtn');
-const waSendBtn = document.getElementById('waSendBtn');
-const waUserInput = document.getElementById('waUserInput');
-
-// Target Phone Number (Clean international format: NO plus sign, spaces, or dashes)
-const BUSINESS_PHONE = "254724039720"; 
-
-// Toggle open widget window
-waWidgetBtn.addEventListener('click', () => {
-  waChatBox.style.display = 'flex';
-});
-
-// Close widget window
-waCloseBtn.addEventListener('click', () => {
-  waChatBox.style.display = 'none';
-});
-
-// Fire message query to WhatsApp on submit click
-waSendBtn.addEventListener('click', executeRouting);
-
-// Also submit if the user presses "Enter" inside the text field
-waUserInput.addEventListener('keypress', (e) => {
-  if (e.key === 'Enter') executeRouting();
-});
-
-function executeRouting() {
-  const userText = waUserInput.value.trim();
-  if (!userText) return; // Exit if input is empty
-  
-  // URL-encode text payload safely
-  const completeMessage = encodeURIComponent(userText);
-  
-  // CORRECTED: Added the missing '/' and '\$' for a valid template literal link
-  const targetWhatsAppUrl = `https://wa.me/${BUSINESS_PHONE}?text=${completeMessage}`;
-  
-  // Force a secure redirect open context out to a fresh tab
-  window.open(targetWhatsAppUrl, '_blank');
-  
-  // Clean input and close window
-  waUserInput.value = '';
-  waChatBox.style.display = 'none';
-}
-
-
-
-const footer = document.getElementById('footer');
-const myBtn = document.getElementById('contact');
-
-myBtn.addEventListener('click',function(){
-footer.scrollIntoView({behavior:'smooth'})  
-});
+/* Change slide automatically every 3000ms (3 seconds) */
+setInterval(nextSlide, 3000);
