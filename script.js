@@ -21,7 +21,7 @@ document.querySelectorAll('.order').forEach(function(b){b.addEventListener('clic
 dlg.addEventListener('click',function(e){if(e.target===dlg)dlg.close()});
 function bind(){document.getElementById('f').addEventListener('submit',function(e){e.preventDefault();var d=new FormData(this);
   var body='Name: '+d.get('n')+'\nEmail: '+d.get('e')+'\nPackage: '+d.get('p')+'\n\n'+d.get('d');
-  location.href='mailto:hello@novaforge.example?subject='+encodeURIComponent('New order: '+d.get('p'))+'&body='+encodeURIComponent(body);
+  location.href='mailto:studiovectorforge@gmail.com?subject='+encodeURIComponent('New order: '+d.get('p'))+'&body='+encodeURIComponent(body);
   mb.innerHTML='<div class="ok">Thank you! Your order is on its way. We’ll reply within 24 hours.</div>'})}
 bind();
 
